@@ -1,0 +1,23 @@
+Accuracy Results per Task
+======================================================================
+Acoustic_Scene_Classification: Total=2000, Correct=517, Invalid=1, Accuracy=0.2585
+Audio_Grounding: Total=896, Correct=319, Invalid=0, Accuracy=0.3560
+Music_AQA: Total=814, Correct=425, Invalid=0, Accuracy=0.5221
+Music_Genre_Recognition: Total=2000, Correct=382, Invalid=0, Accuracy=0.1910
+Music_Instruments_Classfication: Total=2000, Correct=523, Invalid=1, Accuracy=0.2615
+Music_Midi_Pitch_Analysis: Total=1000, Correct=257, Invalid=1, Accuracy=0.2570
+Music_Midi_Velocity_Analysis: Total=1000, Correct=236, Invalid=0, Accuracy=0.2360
+Music_Mood_Recognition: Total=1000, Correct=284, Invalid=0, Accuracy=0.2840
+Sound_AQA: Total=2000, Correct=799, Invalid=0, Accuracy=0.3995
+Speaker_Age_Prediction: Total=1000, Correct=243, Invalid=0, Accuracy=0.2430
+Speaker_Emotion_Recontion: Total=2000, Correct=556, Invalid=1, Accuracy=0.2780
+Speaker_Gender_Recognition: Total=1992, Correct=980, Invalid=1, Accuracy=0.4920
+Speaker_Intent_Classification: Total=1000, Correct=251, Invalid=2, Accuracy=0.2510
+Speaker_Number_Verification: Total=1000, Correct=369, Invalid=0, Accuracy=0.3690
+Speech_Entity_Reconition: Total=1000, Correct=324, Invalid=1, Accuracy=0.3240
+Speech_Grounding: Total=981, Correct=273, Invalid=2, Accuracy=0.2783
+Spoken_Language_Identification: Total=1000, Correct=387, Invalid=0, Accuracy=0.3870
+Synthesized_Voice_Detection: Total=1000, Correct=475, Invalid=0, Accuracy=0.4750
+vocal_sound_classification: Total=1000, Correct=274, Invalid=0, Accuracy=0.2740
+======================================================================
+OVERALL: Total=24683, Correct=7874, Invalid=10, Accuracy=0.3190
