@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from openai import OpenAI
 import json
 import os
 import random
@@ -10,20 +11,16 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import threading
 import argparse
 from func_timeout import func_set_timeout
-import os
-import time
-import random
-import requests
 import jsonlines
 import pandas as pd
 from tqdm import tqdm
 
 MAX_API_RETRY = 3
-LLM_MIT_RETRY_SLEEP = 5
 
-os.environ['MIT_SPIDER_TOKEN'] = ''
-os.environ['MIT_SPIDER_URL'] = ''
-
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ.get("OPENROUTER_API_KEY", ""),
+)
 
 
 def load_file2list(path):
@@ -33,43 +30,6 @@ def load_file2list(path):
             res.append(item)
     return res
 
-
-
-
-def mit_openai_api(**kwargs):
-    if not os.environ.get('MIT_SPIDER_TOKEN', None):
-        print("NO MIT_SPIDER_TOKEN FOUND，please set export MIT_SPIDER_TOKEN=<YOUR TOKEN>")
-    if not os.environ.get('MIT_SPIDER_URL', None):
-        print("NO MIT_SPIDER_URL FOUND，please set export MIT_SPIDER_URL=<YOUR URL>")
-    mit_spider_config = {
-        "url": os.environ.get("MIT_SPIDER_URL", None),
-        "header": {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {os.environ.get('MIT_SPIDER_TOKEN', None)}"
-        }
-    }
-    tenant = None
-    response = None
-    for i in range(MAX_API_RETRY):
-        try:
-            if tenant:
-                payload = {'tenant': tenant}
-            else:
-                payload = dict()
-            for k, w in kwargs.items():
-                payload[f"{k}"] = w
-            response = requests.post(mit_spider_config['url'], json=payload, headers=mit_spider_config['header']).json()
-        except Exception as e:
-            print(response, e)
-            time.sleep(LLM_MIT_RETRY_SLEEP)
-            continue
-        
-        if response['code'] == 200:
-            return response
-        else:
-            time.sleep(LLM_MIT_RETRY_SLEEP)
-            print(response)
-    return None
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s.%(msecs)03d %(levelname)s:\t%(message)s',
@@ -82,16 +42,17 @@ failed_count = 0
 
 @func_set_timeout(1200)
 def get_result_by_request(**kwargs):
-    response = mit_openai_api(**kwargs)
-    if response['code'] == 200:
-        result = response['data']['response']['choices'][0]['message']['content']
-        prompt_tokens = response['data']['prompt_tokens']
-        completion_tokens = response['data']['completion_tokens']
-        finish_reason = response['data']['response']['choices'][0]['finish_reason']
-        return result, prompt_tokens, completion_tokens, finish_reason
-
-    else:
-        raise Exception(response['messages'])
+    response = client.chat.completions.create(
+        model=kwargs['model'],
+        messages=kwargs['messages'],
+        temperature=kwargs.get('temperature', 1.0),
+        max_tokens=kwargs.get('max_tokens', 1024),
+    )
+    result = response.choices[0].message.content
+    prompt_tokens = response.usage.prompt_tokens
+    completion_tokens = response.usage.completion_tokens
+    finish_reason = response.choices[0].finish_reason
+    return result, prompt_tokens, completion_tokens, finish_reason
        
 
 
@@ -234,7 +195,7 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--in-file", type=str, default='batch_run_input.jsonl')
     parser.add_argument("-o", "--out-file", type=str, default='batch_run_output.jsonl')
     parser.add_argument("-n", "--num-workers", type=int, default=50)     #max=50
-    parser.add_argument("-m", "--model-name", type=str, default='gpt-4-0125-preview')
+    parser.add_argument("-m", "--model-name", type=str, default='openai/gpt-4-turbo')
     parser.add_argument("-t", "--temperature", type=float, default=1.0)
     parser.add_argument("--max-tokens", type=int, default=1024)
     parser.add_argument("--uuid", type=str, default='uuid')
